@@ -20,6 +20,16 @@ from zipfile import ZipFile
 from tqdm import tqdm
 
 
+class TaskWithGameid(Task):
+    """
+    Task クラスを拡張して、game_id を追加するクラス
+    """
+
+    game_id: str = Field(..., description="ゲームのID")
+
+    def __init__(self, **data):
+        super().__init__(**data)
+        self.game_id = data.get("game_id", "NULL")
 
 
 class SingleturnDataset(MultiturnDataset):
@@ -111,14 +121,14 @@ class SingleturnDataset(MultiturnDataset):
         with ZipFile(path) as zfile:
             zfile.extractall(data_path, members=tqdm(zfile.namelist(), desc='Extracting zip file'))
 
-    def create_task(self, previous_chat, initial_grid, target_grid,
-                    last_instruction):
-        task = Task(
+    def create_task(self, previous_chat, initial_grid, target_grid, last_instruction, game_id=None):
+        task = TaskWithGameid(
             dialog=previous_chat,
             instruction=last_instruction,
             target_grid=Tasks.to_dense(target_grid),
             starting_grid=Tasks.to_sparse(initial_grid),
             full_grid=Tasks.to_dense(target_grid),
+            game_id=game_id,
         )
         # To properly init max_int and prev_grid_size fields
         task.sample()
@@ -272,7 +282,7 @@ class SingleturnDataset(MultiturnDataset):
             # Construct task
             task = self.create_task(
                 utterances, initial_world_blocks, target_world_blocks,
-                last_instruction=last_instruction)
+                last_instruction=last_instruction, game_id=row.GameId)
 
             # e.g. initial_world_states\builder-data/8-c92/step-4 -> 8-c92/step-4 
             task_id, step_id = row.InitializedWorldPath.split("/")[-2:]
