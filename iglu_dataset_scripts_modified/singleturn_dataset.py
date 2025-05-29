@@ -26,8 +26,10 @@ class TaskWithGameid(Task):
     """
 
     def __init__(self, **data):
+        # game_id を親クラスに渡さないように先に取り出す
+        self.game_id = data.pop("game_id", "NULL")
+        # 残りのフィールドだけで親の初期化を呼び出す
         super().__init__(**data)
-        self.game_id = data.get("game_id", "NULL")
 
 
 class SingleturnDataset(MultiturnDataset):
