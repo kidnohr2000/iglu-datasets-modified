@@ -25,8 +25,6 @@ class TaskWithGameid(Task):
     Task クラスを拡張して、game_id を追加するクラス
     """
 
-    game_id: str = Field(..., description="ゲームのID")
-
     def __init__(self, **data):
         super().__init__(**data)
         self.game_id = data.get("game_id", "NULL")
