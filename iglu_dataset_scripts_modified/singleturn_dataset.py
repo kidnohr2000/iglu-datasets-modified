@@ -205,9 +205,8 @@ class SingleturnDataset(MultiturnDataset):
         dialogs['InitializedWorldPath'] = dialogs['InitializedWorldPath'] \
             .apply(lambda x: x.replace('/', os.path.sep))
 
-        # Get the list of games for which the instructions were clear and ambigous.
-        # turns = dialogs[dialogs.GameId.str.match("CQ-*")]
-        turns = dialogs
+        # Get the list of games for which the original game.
+        turns = dialogs[~dialogs.GameId.str.match("CQ-*")]
 
         # Util function to read structure from disk.
         def _load_structure(structure_path):
