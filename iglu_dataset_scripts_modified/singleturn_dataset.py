@@ -205,8 +205,9 @@ class SingleturnDataset(MultiturnDataset):
         dialogs['InitializedWorldPath'] = dialogs['InitializedWorldPath'] \
             .apply(lambda x: x.replace('/', os.path.sep))
 
-        # Get the list of games for which the instructions were clear.
-        turns = dialogs[dialogs.GameId.str.match("CQ-*")]
+        # Get the list of games for which the instructions were clear and ambigous.
+        # turns = dialogs[dialogs.GameId.str.match("CQ-*")]
+        turns = dialogs
 
         # Util function to read structure from disk.
         def _load_structure(structure_path):
@@ -252,10 +253,10 @@ class SingleturnDataset(MultiturnDataset):
             # Get the original game.
             # TOOD: here we need to remove `[len("CQ-"):]`. Otherwise CQ-* sessions will be dropped. 
             # but this might get duplicates in the dataset.
-            orig = dialogs[dialogs.GameId == row.GameId[len("CQ-"):]]
+            orig = dialogs[dialogs.GameId == row.GameId.replace('CQ-', '')]
             if len(orig) == 0:
                 errors['dialog_not_found'] += 1
-                pbar.write(f"Skipping '{row.GameId}'. Can't find its original game '{row.GameId[len('CQ-'):]}'.")
+                pbar.write(f"Skipping '{row.GameId}'. Can't find its original game '{row.GameId.replace('CQ-', '')}'.")
                 continue
 
             assert len(orig) == 1
